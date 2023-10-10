@@ -142,3 +142,41 @@ export async function createUser(
     throw error;
   }
 }
+
+export async function updateUser(
+  id: string,
+  name: string,
+  email: string,
+  bio: string,
+  avatar: string,
+  role: string,
+) {
+  try {
+    const response = await fetch("https://api-test.sinardigital.co.id/users", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: id,
+        name: name,
+        email: email,
+        bio: bio,
+        avatar: avatar,
+        roleId: role,
+      }),
+    });
+
+    if (response.ok) {
+      const res = await response.json();
+      return res.data;
+    } else {
+      const errorData = await response.json();
+      throw errorData;
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+    throw error;
+  }
+}

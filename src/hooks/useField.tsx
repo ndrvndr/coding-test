@@ -6,6 +6,7 @@ interface UseFieldProp {
 
 interface UseFieldReturn {
   value: string;
+  setValue: (value: string) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   reset: () => void;
 }
@@ -23,6 +24,7 @@ const useField = ({ initialValue = "" }: UseFieldProp = {}): UseFieldReturn => {
 
   return {
     value,
+    setValue,
     onChange,
     reset,
   };

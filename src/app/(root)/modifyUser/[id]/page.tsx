@@ -1,103 +1,102 @@
+"use client";
+import Button from "@/components/elements/Button";
+import InputForm from "@/components/elements/InputForm";
 import useField from "@/hooks/useField";
 import { UserData } from "@/interface/user";
-import { createUser, updateUser } from "@/services/userService";
+import { fetchUserById, updateUser } from "@/services/userService";
+import Link from "next/link";
 import * as React from "react";
-import { Dispatch, SetStateAction } from "react";
-import Button from "./elements/Button";
-import InputForm from "./elements/InputForm";
+import { useRouter } from "next/navigation";
 
-interface Prop {
-  setIsModalActive: Dispatch<SetStateAction<boolean>>;
-  fetchUsers: () => void;
-  selectedUser: UserData | null;
-  isModify: boolean;
-}
+export default function Page({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [creatUserErrorMessage, setCreatUserErrorMessage] =
+    React.useState<string>("");
+  console.log(creatUserErrorMessage);
 
-export default function UserFormModal({
-  setIsModalActive,
-  fetchUsers,
-  selectedUser,
-  isModify,
-}: Prop) {
   const nameInput = useField();
   const emailInput = useField();
-  const passwordInput = useField();
   const bioInput = useField();
   const avatarInput = useField();
-
   const [selectedRole, setSelectedRole] = React.useState<string>(
     "648c4a358f6c1f606c750c1d",
   );
+
   const handleRoleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedRole(event.target.value);
   };
 
-  const [loginErrorMessage, setLoginErrorMessage] = React.useState("");
+  React.useEffect(() => {
+    const userId = params.id;
+    async function fetchUser() {
+      if (userId) {
+        try {
+          const response = await fetchUserById(userId);
+          setUserData(response.data);
+        } catch (error) {
+          console.error("An error occurred:", error);
+        }
+      }
+    }
+
+    fetchUser();
+  }, [params]);
 
   React.useEffect(() => {
-    if (selectedUser && isModify) {
-      nameInput.setValue(selectedUser.name || "");
-      emailInput.setValue(selectedUser.email || "");
-      bioInput.setValue(selectedUser.bio || "");
-      avatarInput.setValue(selectedUser.avatar || "");
-      setSelectedRole(selectedUser.role._id || "");
+    if (userData) {
+      nameInput.setValue(userData.name || "");
+      emailInput.setValue(userData.email || "");
+      bioInput.setValue(userData.bio || "");
+      avatarInput.setValue(userData.avatar || "");
+      setSelectedRole(userData.role._id || "");
     }
     // eslint-disable-next-line
-  }, [selectedUser]);
+  }, [userData]);
 
   const handleSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
     try {
-      selectedUser
-        ? await updateUser(
-            selectedUser._id,
-            nameInput.value,
-            emailInput.value,
-            bioInput.value,
-            avatarInput.value,
-            selectedRole,
-          )
-        : await createUser(
-            nameInput.value,
-            emailInput.value,
-            passwordInput.value,
-            bioInput.value,
-            avatarInput.value,
-            selectedRole,
-          );
+      await updateUser(
+        params.id,
+        nameInput.value,
+        emailInput.value,
+        bioInput.value,
+        avatarInput.value,
+        selectedRole,
+      );
 
       nameInput.reset();
       emailInput.reset();
-      passwordInput.reset();
       bioInput.reset();
       avatarInput.reset();
       setSelectedRole("648c4a358f6c1f606c750c1d");
 
-      setIsModalActive(false);
-      fetchUsers();
+      router.push("/");
     } catch (error: any) {
       const errorMessage =
         error.message && error.message.length > 0
           ? error.message[0]
           : "Unknown error";
-      setLoginErrorMessage(errorMessage);
+      setCreatUserErrorMessage(errorMessage);
     }
   };
 
   return (
-    <div className="absolute top-0 flex h-screen w-full items-center justify-center bg-black bg-opacity-50">
-      <div className="w-1/3 rounded-md bg-white p-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-xl font-bold">New User</h1>
-          <button
-            className="rounded-md bg-red-500 px-3 py-1 text-white"
-            onClick={() => setIsModalActive(false)}
+    <main>
+      <div className="m-auto h-[calc(100vh-80px)] max-w-7xl pt-7">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">Modify User</h1>
+          <Link
+            className="rounded-md bg-blue-500 px-4 py-2 text-white"
+            href="/"
           >
-            Close
-          </button>
+            Back
+          </Link>
         </div>
 
-        <form onSubmit={handleSubmitForm}>
+        <form className="mt-7" onSubmit={handleSubmitForm}>
           <InputForm
             id="name"
             label="Name"
@@ -114,17 +113,6 @@ export default function UserFormModal({
             value={emailInput.value}
             onchange={emailInput.onChange}
           />
-          {!selectedUser && (
-            <InputForm
-              id="password"
-              label="Password"
-              type="password"
-              placeholder="Enter password"
-              value={passwordInput.value}
-              onchange={passwordInput.onChange}
-              minlength={8}
-            />
-          )}
           <InputForm
             id="bio"
             label="Bio"
@@ -158,15 +146,15 @@ export default function UserFormModal({
             </select>
           </div>
 
-          {loginErrorMessage && (
+          {/* {loginErrorMessage && (
             <p className="my-4 h-6 text-center text-red-500">
               {loginErrorMessage}
             </p>
-          )}
+          )} */}
 
           <Button value="Save" />
         </form>
       </div>
-    </div>
+    </main>
   );
 }

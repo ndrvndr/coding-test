@@ -14,6 +14,8 @@ export default function Page() {
   const itemsPerPage = 8;
 
   const [isModalActive, setIsModalActive] = React.useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = React.useState<UserData | null>(null);
+  const [isModify, setIsModify] = React.useState<boolean>(false);
 
   const router = useRouter();
   const { token } = useAuth();
@@ -45,6 +47,18 @@ export default function Page() {
     }
   };
 
+  const handleModifyUser = (user: UserData) => {
+    setIsModalActive(true);
+    setSelectedUser(user);
+    setIsModify(true);
+  };
+
+  const handleAddUser = () => {
+    setIsModalActive(true);
+    setSelectedUser(null);
+    setIsModify(false);
+  };
+
   return (
     <>
       <main className="relative ">
@@ -53,7 +67,7 @@ export default function Page() {
             <h1 className="text-2xl font-bold">User Management</h1>
             <button
               className="rounded-md bg-blue-500 px-4 py-2 text-white"
-              onClick={() => setIsModalActive(true)}
+              onClick={() => handleAddUser()}
             >
               Add User
             </button>
@@ -93,7 +107,10 @@ export default function Page() {
                       <td>{user.email}</td>
                       <td>{user.role.name}</td>
                       <td>
-                        <button className="mr-2 rounded-md bg-yellow-500 px-4 py-2 text-white">
+                        <button
+                          className="mr-2 rounded-md bg-yellow-500 px-4 py-2 text-white"
+                          onClick={() => handleModifyUser(user)}
+                        >
                           Modify
                         </button>
                         <button
@@ -142,6 +159,8 @@ export default function Page() {
         <UserFormModal
           setIsModalActive={setIsModalActive}
           fetchUsers={fetchUsers}
+          selectedUser={selectedUser}
+          isModify={isModify}
         />
       )}
     </>
