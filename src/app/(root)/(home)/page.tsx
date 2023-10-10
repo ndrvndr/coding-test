@@ -95,7 +95,13 @@ export default function Page() {
                   </td>
                 </tr>
               ))
-            : null}
+            : Array.from({ length: 8 }).map((_, index) => (
+                <tr key={index} className="h-16 animate-pulse bg-slate-200">
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tr>
+              ))}
         </tbody>
       </table>
 
