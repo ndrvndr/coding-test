@@ -1,58 +1,41 @@
 "use client";
 import Button from "@/components/elements/Button";
 import InputForm from "@/components/elements/InputForm";
-import useField from "@/hooks/useField";
-import * as React from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import useField from "@/hooks/useField";
+import { loginUser } from "@/services/userService";
+import { useRouter } from "next/navigation";
+import * as React from "react";
 
 export default function Page() {
   const router = useRouter();
+  const { login } = useAuth();
 
   const emailInput = useField();
   const passwordInput = useField();
-  const [errorMessage, setErrorMessage] = React.useState("");
-
-  const { login } = useAuth();
+  const [loginErrorMessage, setLoginErrorMessage] = React.useState("");
 
   const handleSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     try {
-      const response = await fetch(
-        "https://api-test.sinardigital.co.id/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: emailInput.value,
-            password: passwordInput.value,
-          }),
-        },
+      const { token, id } = await loginUser(
+        emailInput.value,
+        passwordInput.value,
       );
 
-      if (response.ok) {
-        const res = await response.json();
-        const token = res.data.access_token;
-        login(token);
+      login(token, id);
 
-        emailInput.reset();
-        passwordInput.reset();
+      emailInput.reset();
+      passwordInput.reset();
 
-        router.push("/");
-      } else {
-        const errorData = await response.json();
-        if (errorData.message && errorData.message.length > 0) {
-          const errorMessage = errorData.message[0];
-          setErrorMessage(errorMessage);
-        } else {
-          setErrorMessage("Unknown error");
-        }
-      }
-    } catch (error) {
-      console.error("An error occurred:", error);
+      router.push("/");
+    } catch (error: any) {
+      const errorMessage =
+        error.message && error.message.length > 0
+          ? error.message[0]
+          : "Unknown error";
+      setLoginErrorMessage(errorMessage);
     }
   };
 
@@ -78,9 +61,9 @@ export default function Page() {
         <Button value="Login" />
       </form>
 
-      <p className={`mt-4 h-6 text-center text-red-500`}>
-        {errorMessage ? errorMessage : ""}
-      </p>
+      {loginErrorMessage && (
+        <p className="mt-4 h-6 text-center text-red-500">{loginErrorMessage}</p>
+      )}
     </>
   );
 }
