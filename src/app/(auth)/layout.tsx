@@ -1,6 +1,7 @@
-import "../globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,7 +26,7 @@ export default function RootLayout({
             <p className="mb-8 text-center font-medium text-slate-500">
               Welcome Back !
             </p>
-            {children}
+            <AuthProvider>{children}</AuthProvider>
           </div>
         </main>
       </body>
