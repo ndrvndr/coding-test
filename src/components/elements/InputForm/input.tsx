@@ -4,6 +4,7 @@ interface Props {
   placeholder: string;
   value: string;
   onchange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  minlength?: number;
 }
 
 export default function Input({
@@ -12,6 +13,7 @@ export default function Input({
   placeholder,
   value,
   onchange,
+  minlength = 0,
 }: Props) {
   return (
     <input
@@ -22,6 +24,7 @@ export default function Input({
       value={value}
       onChange={onchange}
       required
+      minLength={minlength}
     />
   );
 }

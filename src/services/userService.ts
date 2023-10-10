@@ -104,3 +104,41 @@ export async function deleteUser(userId: string) {
     throw error;
   }
 }
+
+export async function createUser(
+  name: string,
+  email: string,
+  password: string,
+  bio: string,
+  avatar: string,
+  role: string,
+) {
+  try {
+    const response = await fetch("https://api-test.sinardigital.co.id/users", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        password: password,
+        bio: bio,
+        avatar: avatar,
+        roleId: role,
+      }),
+    });
+
+    if (response.ok) {
+      const res = await response.json();
+      return res.data;
+    } else {
+      const errorData = await response.json();
+      throw errorData;
+    }
+  } catch (error) {
+    console.error("An error occurred:", error);
+    throw error;
+  }
+}

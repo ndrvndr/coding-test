@@ -1,10 +1,14 @@
 "use client";
+import { useAuth } from "@/context/AuthContext";
 import { UserData } from "@/interface/user";
 import { fetchUserById } from "@/services/userService";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import * as React from "react";
 
 export default function Navbar() {
+  const router = useRouter();
+  const { logout } = useAuth();
   const [userData, setUserData] = React.useState<UserData | null>(null);
 
   React.useEffect(() => {
@@ -24,6 +28,11 @@ export default function Navbar() {
     fetchUser();
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <nav className="bg-blue-500 py-5 text-white">
       <div className="m-auto flex max-w-7xl items-center justify-between">
@@ -38,6 +47,12 @@ export default function Navbar() {
               className="rounded-full"
             />
             <span>{userData.name}</span>
+            <button
+              className="ml-2 rounded-md bg-red-500 px-2 py-1"
+              onClick={handleLogout}
+            >
+              Sign Out
+            </button>
           </div>
         ) : (
           <div className="flex animate-pulse items-center gap-2">

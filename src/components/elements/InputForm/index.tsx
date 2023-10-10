@@ -8,6 +8,7 @@ interface Props {
   placeholder: string;
   value: string;
   onchange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  minlength?: number;
 }
 
 export default function InputForm({
@@ -17,6 +18,7 @@ export default function InputForm({
   placeholder,
   value,
   onchange,
+  minlength,
 }: Props) {
   return (
     <div className="mb-6">
@@ -27,6 +29,7 @@ export default function InputForm({
         placeholder={placeholder}
         value={value}
         onchange={onchange}
+        minlength={minlength}
       />
     </div>
   );
